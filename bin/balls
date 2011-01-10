@@ -1,0 +1,16 @@
+#!/bin/bash
+export BALLS_LIB="$(dirname $0)/../lib"
+. $BALLS_LIB/balls.sh
+
+mode=$1; shift
+
+case $mode in
+  route|server)
+putd ROUTES
+    balls::$mode
+  ;;
+  *)
+    echo "unknown"
+  ;;
+esac
+
