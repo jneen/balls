@@ -1,5 +1,5 @@
 #!/bin/bash
-# ROUTES=""
+
 balls::define_route() {
   local verb=$1; shift
   local path=$1; shift
@@ -14,17 +14,15 @@ $route_line"
   fi
 }
 
-alias b:GET='balls::define_route GET'
-alias b:POST='balls::define_route POST'
-alias b:PUT='balls::define_route PUT'
-alias b:DELETE='balls::define_route DELETE'
+b:GET() { balls::define_route GET "$@" ;}
+b:POST() { balls::define_route POST "$@" ;}
+b:PUT() { balls::define_route PUT "$@" ;}
+b:DELETE() { balls::define_route DELETE "$@" ;}
 
 balls::route() {
-
-stderr "begin balls::route"
-putd REQUEST_METHOD
-putd REQUEST_PATH
-putd ROUTES
+  if [[ "$REQUEST_METHOD" = "HEAD" ]]; then
+    body_sock=/dev/null
+  fi
 
   local action=$(
     echo "$ROUTES" | grep "^$REQUEST_METHOD" | {
@@ -40,13 +38,31 @@ putd ROUTES
     }
   )
 
-putd action
-stderr "$(type $action)"
-  if [ -z "$action" ]; then
-    true
-    # 404
-  elif [ -n "$(type $action)" ]; then
-stderr LOL
-    $action
+  if [ -n "$action" ] && exists "$action"; then
+    ( $action 3>$headers_sock ) | {
+      headers=$(cat <$headers_sock)
+      body=$(cat -)
+
+      response=$(
+        echo "$headers"
+        echo "Content-Length: ${#body}"
+        echo "$body"
+      )
+
+      echo "$response" >$http_sock
+    }
+    # send the headers to the client
+  else
+    if [[ "$REQUEST_METHOD" = "HEAD" ]]; then
+      REQUEST_METHOD=GET
+      balls::route
+    else
+      http::status 404 > $http_sock
+      http::content_type text/plain > $http_sock
+      http::body > $http_sock
+    fi
+
+    echo "No route matched $REQUEST_METHOD $REQUEST_PATH" > $http_sock
+    echo > $http_sock
   fi
 }

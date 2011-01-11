@@ -1,16 +1,42 @@
 #!/bin/bash
-export BALLS_LIB="$(dirname $0)/../lib"
+BALLS_LIB=$(dirname $0)/../lib
+BALLS_LIB=$(readlink -f "$BALLS_LIB") # expand the ../
+
 . $BALLS_LIB/balls.sh
 
 mode=$1; shift
 
+while getopts 'e:C:' opt; do
+  case $opt in
+    C)
+      BALLS_CONF=$OPTARG
+    ;;
+    e)
+      BALLS_ENV=$OPTARG
+    ;;
+    \?)
+      stderr "Usage: $0 <mode> [options]"
+      stderr
+      stderr 'Options:'
+      stderr '  -e <env>   the server environment, BALLS_ENV'
+      stderr '             default: development'
+      stderr
+      stderr '  -C <path>  path to the balls conf file, BALLS_CONF'
+      stderr '             default: ./config/$BALLS_ENV.sh'
+    ;;
+  esac
+done
+
+[ -z "$BALLS_ENV" ] && BALLS_ENV=development
+[ -z "$BALLS_CONF" ] && BALLS_CONF=./config/$BALLS_ENV.sh
+
+. "$BALLS_CONF"
+
 case $mode in
-  route|server)
-putd ROUTES
+  server)
     balls::$mode
   ;;
   *)
     echo "unknown"
   ;;
 esac
-

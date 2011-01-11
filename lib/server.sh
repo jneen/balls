@@ -1,32 +1,30 @@
 #!/bin/bash
+TMP_DIR=./tmp
+
+_hash() {
+  echo $$.$(date +'%s.%N').$RANDOM
+}
+
 balls::server() {
-  local sock=$BALLS_SOCK
-  [[ -z "$sock" ]] && sock=./tmp/balls.sock
-  [ -p $sock ] || mkfifo $sock
+  local http_sock=$BALLS_SOCK
+  [ -z "$http_sock" ] && http_sock=$TMP_DIR/balls.http.sock
+  [ -p $http_sock ] || mkfifo $http_sock
 
-putd ROUTES
   while true ; do
-    ( cat $sock ) | nc -l -p 9009 | (
-      local REQ=$(while read L && [ " " "<" "$L" ] ; do echo "$L" ; done)
-      balls::parse_http
+    cat $http_sock | nc -l -p 9009 | (
+      headers_sock=$TMP_DIR/balls.headers.$(_hash).sock
+      [ -p $headers_sock ] || mkfifo $headers_sock
 
-putd ROUTES
-      balls::route > $sock
+      http::parse_request
+
+      balls::route
     )
+    rm -f $headers_sock
   done
 }
 
-balls::parse_http() {
-  local req_line=$(echo "$REQ" | head -1)
-  req_line=($req_line)
-
-  export REQUEST_METHOD=${req_line[0]}
-
-  export REQUEST_URI=${req_line[1]}
-  export REQUEST_PATH=${REQUEST_URI%%\?*}
-  export QUERY_STRING=${REQUEST_URI#*\?}
-
-  export VERSION=${req_line[2]}
-
-  export SERVER_SOFTWARE="balls_cgi/0.0"
+cleanup() {
+  rm -f "$headers_sock" "$http_sock"
 }
+
+trap 'cleanup; exit' INT
