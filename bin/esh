@@ -1,0 +1,57 @@
+#!/bin/bash
+
+fname=$1; shift
+
+read_until() {
+  local glob=$1; shift
+  local var=$1; shift
+
+  local out
+
+  while IFS= read -d"$(echo -e '\004')" -n1 ch; do
+    if [ -z "$ch" ]; then
+      ch="$(echo -e "\n")"
+    fi
+    out="${out}${ch}"
+    case "$out" in
+      *$glob)
+        FOUND=1
+        export $var="${out%$glob}"
+        return 0
+      ;;
+    esac
+  done
+
+  # we've hit an EOF
+  if [ -z "$out" ]; then
+    false
+  else
+    FOUND=0
+    export $var="$out"
+    true
+  fi
+}
+
+compile() {
+  if [ -f "$fname" ]; then
+    cat $fname
+  else
+    cat -
+  fi | compile
+
+  local code
+  local chunk
+  while read_until '<%' chunk; do
+    # escape ' with '\''.  sorry everyone.
+    chunk="$(
+      echo "$chunk" | sed "s:':'\\\\'':g"
+    )"
+    echo "echo -n '$chunk'"
+
+    if [ "$FOUND" = 1 ]; then
+      read_until '%>' code
+      echo "$code"
+    fi
+
+  done
+}
