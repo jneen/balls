@@ -1,57 +1,65 @@
 #!/bin/bash
+BALLS_LIB=$(readlink -f $(dirname $0)/../lib)
 
-fname=$1; shift
+shopt -s extglob
 
-read_until() {
-  local glob=$1; shift
-  local var=$1; shift
+. $BALLS_LIB/balls.sh
 
-  local out
-
-  while IFS= read -d"$(echo -e '\004')" -n1 ch; do
-    if [ -z "$ch" ]; then
-      ch="$(echo -e "\n")"
-    fi
-    out="${out}${ch}"
-    case "$out" in
-      *$glob)
-        FOUND=1
-        export $var="${out%$glob}"
-        return 0
-      ;;
-    esac
-  done
-
-  # we've hit an EOF
-  if [ -z "$out" ]; then
-    false
-  else
-    FOUND=0
-    export $var="$out"
-    true
-  fi
+dash_trim_r() {
+  local str="${!1}"
+  str="${str%%*( )}"
+  export "$1"="$str"
 }
 
 compile() {
-  if [ -f "$fname" ]; then
-    cat $fname
-  else
-    cat -
-  fi | compile
-
   local code
   local chunk
+  local trim_next=0
   while read_until '<%' chunk; do
-    # escape ' with '\''.  sorry everyone.
-    chunk="$(
-      echo "$chunk" | sed "s:':'\\\\'':g"
-    )"
-    echo "echo -n '$chunk'"
-
     if [ "$FOUND" = 1 ]; then
       read_until '%>' code
-      echo "$code"
-    fi
+      trim code
 
-  done
+      case "${code:0:1}" in
+        =)
+          code="${code:1}"
+          trim code
+          code="echo -n $code"
+        ;;
+        -)
+          code="${code:1}"
+          dash_trim_r chunk
+          trim code
+        ;;
+      esac
+
+      case "${code:${#code}-1}" in
+        -)
+          # read off the next line
+          read
+          code="${code:0:${#code}-1}"
+          trim code
+        ;;
+      esac
+
+    fi # if [ "$FOUND" = 1 ]
+
+    # echo "echo -n $(bash_safe <<< "$chunk")"
+    bash_safe chunk
+    echo "echo -n $chunk"
+
+    [ "$FOUND" = 1 ] && echo "$code"
+
+  done # while read_until '<%' chunk
+  true
 }
+
+fname=$1; shift
+
+export eof="$(echo -e '\004')"
+
+if [ -n "$fname" ]; then
+  cat $fname || exit 1
+else
+  cat -
+fi | compile
