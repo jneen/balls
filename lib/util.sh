@@ -32,7 +32,7 @@ pluralize() {
 #  trimmed="${trimmed%%*( )}"
 #}
 
-read_char() {
+getc() {
   IFS= read -d"$(echo -e '\004')" -n1 "$@"
 }
 
@@ -42,7 +42,7 @@ read_until() {
 
   local out
 
-  while read_char ch; do
+  while getc ch; do
     out="${out}${ch}"
     case "$out" in
       *$glob)
