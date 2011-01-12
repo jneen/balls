@@ -15,14 +15,14 @@ while getopts 'e:C:' opt; do
       BALLS_ENV=$OPTARG
     ;;
     \?)
-      stderr "Usage: $0 <mode> [options]"
-      stderr
-      stderr 'Options:'
-      stderr '  -e <env>   the server environment, BALLS_ENV'
-      stderr '             default: development'
-      stderr
-      stderr '  -C <path>  path to the balls conf file, BALLS_CONF'
-      stderr '             default: ./config/$BALLS_ENV.sh'
+      echo "Usage: $0 <mode> [options]"
+      echo
+      echo 'Options:'
+      echo '  -e <env>   the server environment, BALLS_ENV'
+      echo '             default: development'
+      echo
+      echo '  -C <path>  path to the balls conf file, BALLS_CONF'
+      echo '             default: ./config/$BALLS_ENV.sh'
     ;;
   esac
 done
