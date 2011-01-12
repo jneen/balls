@@ -11,14 +11,9 @@ balls::server() {
 
   while true; do
     cat $http_sock | nc -l -p $BALLS_PORT | (
-      headers_sock=$TMP_DIR/balls.headers.$(_hash).sock
-      [ -p $headers_sock ] || mkfifo $headers_sock
-
       http::parse_request
-
       balls::route
     )
-    rm -f $headers_sock
   done
 }
 

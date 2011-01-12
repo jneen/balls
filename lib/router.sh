@@ -39,6 +39,9 @@ balls::route() {
   )
 
   if [ -n "$action" ] && exists "$action"; then
+    headers_sock=$BALLS_TMP/balls.headers.$(_hash).sock
+    [ -p $headers_sock ] || mkfifo $headers_sock
+
     ( $action 3>$headers_sock ) | {
       headers=$(cat <$headers_sock)
       body=$(cat -)
@@ -52,6 +55,7 @@ balls::route() {
       echo "$response" >$http_sock
     }
     # send the headers to the client
+    rm -f "$headers_sock"
   else
     if [[ "$REQUEST_METHOD" = "HEAD" ]]; then
       REQUEST_METHOD=GET
