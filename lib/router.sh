@@ -49,6 +49,7 @@ balls::route() {
       response=$(
         echo "$headers"
         echo "Content-Length: ${#body}"
+        echo
         echo "$body"
       )
 
