@@ -53,21 +53,20 @@ balls::route() {
         echo "$body"
       )
 
-      echo "$response" >$http_sock
+      echo "$response"
     }
-    # send the headers to the client
     rm -f "$headers_sock"
   else
     if [[ "$REQUEST_METHOD" = "HEAD" ]]; then
       REQUEST_METHOD=GET
       balls::route
     else
-      http::status 404 > $http_sock
-      http::content_type text/plain > $http_sock
-      http::body > $http_sock
+      http::status 404 3>&1
+      http::content_type text/plain 3>&1
+      echo
     fi
 
-    echo "No route matched $REQUEST_METHOD $REQUEST_PATH" > $http_sock
-    echo > $http_sock
+    echo "No route matched $REQUEST_METHOD $REQUEST_PATH"
+    echo
   fi
 }

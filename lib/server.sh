@@ -12,7 +12,7 @@ balls::server() {
   while true; do
     cat $http_sock | nc -l -p $BALLS_PORT | (
       http::parse_request
-      balls::route
+      balls::route > $http_sock
     )
   done
 }
