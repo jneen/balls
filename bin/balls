@@ -2,8 +2,6 @@
 BALLS_LIB=$(dirname $0)/../lib
 BALLS_LIB=$(readlink -f "$BALLS_LIB") # expand the ../
 
-. $BALLS_LIB/balls.sh
-
 mode=$1; shift
 
 while getopts 'e:C:' opt; do
@@ -27,10 +25,11 @@ while getopts 'e:C:' opt; do
   esac
 done
 
-[ -z "$BALLS_ENV" ] && BALLS_ENV=development
-[ -z "$BALLS_CONF" ] && BALLS_CONF=./config/$BALLS_ENV.sh
-
+[[ -z "$BALLS_ENV" ]] && BALLS_ENV=development
+[[ -z "$BALLS_CONF" ]] && BALLS_CONF=./config/$BALLS_ENV.sh
 . "$BALLS_CONF"
+. $BALLS_LIB/balls.sh
+
 
 case $mode in
   server)
