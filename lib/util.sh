@@ -12,13 +12,7 @@ exists() {
 }
 
 matches() {
-  test -n $(
-    if [ -n "$1" ]; then
-      echo $1; shift
-    else
-      cat -
-    fi | grep "$@"
-  )
+  grep "$@" >/dev/null
 }
 
 pluralize() {
