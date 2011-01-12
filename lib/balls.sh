@@ -20,4 +20,3 @@
 . $BALLS_LIB/server.sh
 . $BALLS_LIB/view.sh
 
-. $BALLS_ACTIONS/*.sh

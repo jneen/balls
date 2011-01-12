@@ -5,6 +5,7 @@ _hash() {
 }
 
 balls::server() {
+  balls::load_app
   http_sock=$BALLS_TMP/balls.http.$$.sock
   [ -p $http_sock ] || mkfifo $http_sock
 
@@ -21,3 +22,7 @@ cleanup() {
 }
 
 trap 'cleanup; exit' INT
+
+balls::load_app() {
+  . $BALLS_ACTIONS/*.sh
+}

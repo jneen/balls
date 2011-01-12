@@ -20,9 +20,8 @@ b:PUT() { balls::define_route PUT "$@" ;}
 b:DELETE() { balls::define_route DELETE "$@" ;}
 
 balls::route() {
-  if [[ "$REQUEST_METHOD" = "HEAD" ]]; then
-    body_sock=/dev/null
-  fi
+  [[ "$BALLS_RELOAD" = 1 ]] && balls::load_app
+  [[ "$REQUEST_METHOD" = "HEAD" ]] && body_sock=/dev/null
 
   local action=$(
     echo "$ROUTES" | grep "^$REQUEST_METHOD" | {
