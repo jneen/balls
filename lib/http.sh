@@ -19,10 +19,10 @@ http::parse_request() {
   local key
   local val
   while http::read HEADER_LINE; do
-    trim "${HEADER_LINE%%*( ):*}"
-    key="$trimmed"
-    trim "${HEADER_LINE#*:*( )}"
-    val="$trimmed"
+    key="${HEADER_LINE%%*( ):*}"
+    trim key
+    val="${HEADER_LINE#*:*( )}"
+    trim val
 
     HEADERS["$key"]="$val"
   done
