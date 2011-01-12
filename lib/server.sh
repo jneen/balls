@@ -5,8 +5,7 @@ _hash() {
 }
 
 balls::server() {
-  http_sock=$TMP_DIR/balls.http.$$.sock
-
+  http_sock=$BALLS_TMP/balls.http.$$.sock
   [ -p $http_sock ] || mkfifo $http_sock
 
   while true; do
