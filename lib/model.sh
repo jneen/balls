@@ -25,6 +25,12 @@ balls::model.find() {
   balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $@"
 }
 
+balls::model.column_names() {
+  balls::model.execute "SHOW COLUMNS IN $(balls::model.table_name)" |\
+    cut -f1 |\
+    tail -n+2
+}
+
 balls::model.table_name() {
   local table_name_var="${model}_table_name"
   if [[ -n "$1" ]]; then
