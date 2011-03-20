@@ -13,10 +13,9 @@
 [[ -z "$BALLS_VIEWS" ]] && BALLS_VIEWS=$BALLS_ROOT/views
 [[ -z "$BALLS_ACTIONS" ]] && BALLS_ACTIONS=$BALLS_ROOT/actions
 
-
 . $BALLS_LIB/util.sh
 . $BALLS_LIB/http.sh
 . $BALLS_LIB/router.sh
 . $BALLS_LIB/server.sh
 . $BALLS_LIB/view.sh
-
+. $BALLS_LIB/model.sh
