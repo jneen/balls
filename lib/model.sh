@@ -22,7 +22,7 @@ balls::model() {
 }
 
 balls::model.find() {
-  mysql $BALLS_DB_CREDENTIALS "$BALLS_DB" -e "SELECT * from $(balls::model.table_name) WHERE $@" | cat
+  balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $@"
 }
 
 balls::model.table_name() {
@@ -34,4 +34,8 @@ balls::model.table_name() {
   else
     echo "$model" | tr '[A-Z]' '[a-z]'
   fi
+}
+
+balls::model.execute() {
+  mysql $BALLS_DB_CREDENTIALS "$BALLS_DB" -e "$@" | cat
 }
