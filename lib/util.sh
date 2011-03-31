@@ -86,3 +86,9 @@ bash_safe() {
   str="$(echo "$str" | sed "s/'/'\\\\''/g")"
   export "$1"="'${str:0:${#str}-1}'"
 }
+
+mysql_safe() {
+  local str="${!1}."
+  str="$(echo "$str" | sed "s/'/\\\\'/g" | tr '\n' '\\n')"
+  export "$1"="'${str:0:${#str}-1}'"
+}

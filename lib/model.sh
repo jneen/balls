@@ -38,6 +38,11 @@ balls::model() {
 }
 
 balls::model.find() {
+  local query="$1"; shift
+  for param in "$@"; do
+    mysql_safe param
+    query="$(sed "s/\?/$param/" <<<"$query")"
+  done
   balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $@"
 }
 
