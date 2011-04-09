@@ -80,15 +80,29 @@ trim() {
   trim_r "$@"
 }
 
+# usage: db_safe my_var
+# will quote my_var for mysql.
+db_safe() {
+  local str="${!1}." # append a . so that bash doesn't chomp off newlines at the end
+  str="$(
+    echo "$str" | sed "s/'/\\\\'/g" | while read line; do echo -n "$line\\n"; done)"
+    #             ^ escape '          escape \n - sed has trouble with this one.
+  export "$1"="'${str:0:${#str}-1}'" # enclose in single quotes, strip off the ., and export the variable
+}
+
 # escape ' with '\''.  sorry everyone.
 bash_safe() {
   local str="${!1}."
   str="$(echo "$str" | sed "s/'/'\\\\''/g")"
+  #                    escape ' with (literally) '\'' - sorry everyone
   export "$1"="'${str:0:${#str}-1}'"
 }
 
-mysql_safe() {
-  local str="${!1}."
-  str="$(echo "$str" | sed "s/'/\\\\'/g" | tr '\n' '\\n')"
-  export "$1"="'${str:0:${#str}-1}'"
+join() {
+  local delim="$1"
+  read line && echo -n "$line"
+  while read line; do
+    echo -n "$delim"
+    echo -n "$line"
+  done
 }

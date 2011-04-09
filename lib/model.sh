@@ -40,7 +40,7 @@ balls::model() {
 balls::model.find() {
   local query="$1"; shift
   for param in "$@"; do
-    mysql_safe param
+    db_safe param
     query="$(sed "s/\?/$param/" <<<"$query")"
   done
   balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $@"
@@ -49,6 +49,11 @@ balls::model.find() {
 balls::model.fields() {
   balls::model.execute "SHOW COLUMNS IN $(balls::model.table_name)" |\
     cut -f1 # bah
+}
+
+balls::model.fields() {
+  local fields_var="$model"_FIELDS
+  echo "${!fields_var}"
 }
 
 balls::model.field_map() {
