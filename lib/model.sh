@@ -35,6 +35,7 @@ balls::model.with() {
 
 balls::model() {
   alias "$1"="balls::model::impl $1"
+  BALLS_LAST_MODEL="$1"
 }
 
 balls::model.find() {
@@ -46,7 +47,7 @@ balls::model.find() {
   balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $@"
 }
 
-balls::model.fields() {
+balls::model.fetch_fields() {
   balls::model.execute "SHOW COLUMNS IN $(balls::model.table_name)" |\
     cut -f1 # bah
 }
@@ -67,7 +68,7 @@ balls::model.column_number_for() {
 
 balls::model.field_at() {
   local idx="$1"
-  balls::model.column_map | grep "^$idx" | cut -f2-
+  balls::model.field_map | grep "^0*$idx" | cut -f2-
 }
 
 balls::model.field() {
@@ -89,4 +90,17 @@ balls::model.table_name() {
 balls::model.execute() {
   mysql $BALLS_DB_CREDENTIALS "$BALLS_DB" -e "$@" | tail -n+2 |\
     sed 's/NULL//g'
+}
+
+balls::model::load() {
+  local file="$1"; shift
+
+  . "$file"
+
+  local model_name="$BALLS_LAST_MODEL"
+
+  local fields_var="$model_name"_FIELDS
+  #                 Person_FIELDS
+
+  export "$fields_var"="$(balls::model::impl "$model_name" fetch_fields)"
 }
