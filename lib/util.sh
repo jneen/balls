@@ -11,9 +11,7 @@ exists() {
   type "$@" >/dev/null 2>/dev/null
 }
 
-matches() {
-  grep "$@" >/dev/null
-}
+alias matches='grep -q'
 
 pluralize() {
   if [ -n "$1" ]; then
