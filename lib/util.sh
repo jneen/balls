@@ -33,7 +33,7 @@ pluralize() {
 # for an explanation of this getc implementation, see
 # http://write.jayferd.us/2011/01/12/bash-adventures-read-a-single-character-even-if-its-a-newline/
 getc() {
-  IFS= read -d"$(echo -e '\004')" -n1 "$@"
+  IFS= read -r -n1 -d '' "$@"
 }
 
 read_until() {
