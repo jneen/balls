@@ -11,7 +11,27 @@ exists() {
   type "$@" >/dev/null 2>/dev/null
 }
 
-alias matches='grep -q'
+test_grepq() {
+  local output="$(echo x | grep -q x)"
+  [[ $? == 0 ]] || return 1
+  [[ -z "$output" ]] || return 1
+  return 0
+}
+
+test_greps() {
+  local output="$(echo x | grep -s x)"
+  [[ $? == 0 ]] || return 1
+  [[ -z "$output" ]] || return 1
+  return 0
+}
+
+if test_grepq; then
+  matches() { grep -q "$@" ;}
+elif test_greps; then
+  matches() { grep -s "$@" ;}
+else
+  matches() { grep "$@" 2>&1 >/dev/null ;}
+fi
 
 pluralize() {
   if [ -n "$1" ]; then
