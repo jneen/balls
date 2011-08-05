@@ -104,18 +104,19 @@ trim() {
 # will quote my_var for mysql.
 db_safe() {
   local str="${!1}." # append a . so that bash doesn't chomp off newlines at the end
+  local escaped_quote="\\'"
   str="$(
-    echo "$str" | sed "s/'/\\\\'/g" | while read line; do echo -n "$line\\n"; done)"
-    #             ^ escape '          escape \n - sed has trouble with this one.
+    echo "${str//\'/$escaped_quote}" | while read line; do echo -n "$line\\n"; done)"
+    #             ^ escape '          escape \n - bash has trouble with this one.
   export "$1"="'${str:0:${#str}-1}'" # enclose in single quotes, strip off the ., and export the variable
 }
 
 # escape ' with '\''.  sorry everyone.
 bash_safe() {
   local str="${!1}."
-  str="$(echo "$str" | sed "s/'/'\\\\''/g")"
-  #                    escape ' with (literally) '\'' - sorry everyone
-  export "$1"="'${str:0:${#str}-1}'"
+  # escape ' with (literally) '\'' - sorry everyone
+  local escaped_quote="'\\''"
+  export "$1"="'${str//\'/$escaped_quote}'"
 }
 
 join() {

@@ -42,9 +42,9 @@ balls::model.find() {
   local query="$1"; shift
   for param in "$@"; do
     db_safe param
-    query="$(sed "s/\?/$param/" <<<"$query")"
+    query="${query/\?/$param}"
   done
-  balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $@"
+  balls::model.execute "SELECT * from $(balls::model.table_name) WHERE $query"
 }
 
 balls::model.fetch_fields() {
