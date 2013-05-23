@@ -113,7 +113,7 @@ db_safe() {
 
 # escape ' with '\''.  sorry everyone.
 bash_safe() {
-  local str="${!1}."
+  local str="${!1}"
   # escape ' with (literally) '\'' - sorry everyone
   local escaped_quote="'\\''"
   export "$1"="'${str//\'/$escaped_quote}'"
