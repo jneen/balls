@@ -24,5 +24,5 @@ cleanup() {
 trap 'cleanup; exit' INT
 
 balls::load_app() {
-  . $BALLS_ACTIONS/*.sh
+  . $BALLS_ACTIONS/*.bash
 }
